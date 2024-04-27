@@ -1,0 +1,47 @@
+body {
+    font-family: "Monospace", "Courier New";
+    text-align: center;
+    justify-content: center;
+  }
+  
+  #title {
+    font-weight: bold;
+    margin-top: 5px;
+  }
+  
+  #gameArea {
+    border: 3px solid grey;
+  }
+  
+  #info {
+    border: 2px solid grey;
+    width: 600px;
+    margin: auto;
+    font-weight: bold;
+    background-color: LightGrey;
+  }
+
+  #scoreBoard {
+    background-color: LightGrey;
+    border: 3px solid grey;
+    width: 604px;
+    margin: auto;
+    font-weight: bold;
+    font-size: large;
+    font-family: "Monospace", "Courier New";
+    color: black;
+  }
+  
+  #startBtn {
+    width: 100px;
+    height: 50px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+  }
+  
+  #resetGameButton {
+    width: 100px;
+    height: 50px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+  }
