@@ -46,7 +46,8 @@ function updateGame() {
         updateProjectiles();
         delayAsteroidSpawning();
         updateAsteroids();
-        checkForCollisions();
+        checkForGameOver();
+        checkForProjectileCollisions();
         updateScores();
     }
 }
@@ -133,15 +134,7 @@ function delayAsteroidSpawning() {
     }
 }
 
-function checkForCollisions() {
-    for (let i = 0; i < asteroids.length; i++) {
-        if (planeX < asteroids[i][0] + asteroidWidth &&
-            planeX + planeWidth > asteroids[i][0] &&
-            planeY < asteroids[i][1] + asteroidHeight &&
-            planeY + planeHeight > asteroids[i][1]) {
-            handleGameOver();
-        }
-    }
+function checkForProjectileCollisions() {
     for (let i = 0; i < projectiles.length; ++i) {
         for (let j = 0; j < asteroids.length; ++j) {
             if (projectiles[i][0] < asteroids[j][0] + asteroidWidth &&
@@ -153,6 +146,17 @@ function checkForCollisions() {
                 ++noAsteroidsDestroyed;
                 break;
             }
+        }
+    }
+}
+
+function checkForGameOver() {
+    for (let i = 0; i < asteroids.length; i++) {
+        if (planeX < asteroids[i][0] + asteroidWidth &&
+            planeX + planeWidth > asteroids[i][0] &&
+            planeY < asteroids[i][1] + asteroidHeight &&
+            planeY + planeHeight > asteroids[i][1]) {
+            handleGameOver();
         }
     }
 }
