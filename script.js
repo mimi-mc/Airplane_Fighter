@@ -59,12 +59,12 @@ function updateScores() {
 }
 
 //move the airplane and shoot
-document.addEventListener('keydown', function(event) {
+document.addEventListener("keydown", function(event) {
     if (!isGameOver) {
-        if (event.key === 'ArrowLeft' && planeX > 0) {
+        if (event.key === "ArrowLeft" && planeX > 0) {
             planeX -= planeSpeed;
         }
-        if (event.key === 'ArrowRight' && planeX < canvasWidth - planeWidth) {
+        if (event.key === "ArrowRight" && planeX < canvasWidth - planeWidth) {
             planeX += planeSpeed;
         }
         if (event.key === " ") {
@@ -90,7 +90,7 @@ function updateProjectiles() {
         if (projectiles[i][1] < 0) {
             projectiles.splice(i, 1);
         }
-        ctx.fillStyle = 'orange';
+        ctx.fillStyle = "orange";
         if (projectiles.length >= 1) {
             ctx.fillRect(projectiles[i][0], projectiles[i][1], projectileWidth, projectileHeight);
         }
@@ -120,7 +120,7 @@ function updateAsteroids() {
             asteroids.splice(i, 1);
         }
         ctx.beginPath();
-        ctx.strokeStyle = 'white';
+        ctx.strokeStyle = "white";
         ctx.strokeRect(asteroids[i][0], asteroids[i][1], asteroidWidth, asteroidHeight);
         ctx.closePath();
     }
@@ -151,7 +151,7 @@ function checkForProjectileCollisions() {
 }
 
 function checkForGameOver() {
-    for (let i = 0; i < asteroids.length; i++) {
+    for (let i = 0; i < asteroids.length; ++i) {
         if (planeX < asteroids[i][0] + asteroidWidth &&
             planeX + planeWidth > asteroids[i][0] &&
             planeY < asteroids[i][1] + asteroidHeight &&
@@ -168,7 +168,7 @@ function handleGameOver() {
     ctx.fillStyle = "red";
     ctx.font = "bold italic 50px Courier New";
     ctx.fillText("GAME OVER", canvasWidth / 4, canvasHeight / 2);
-    document.getElementById('resetGameButton').disabled = false;
+    document.getElementById("resetGameButton").disabled = false;
 }
 
 function countSeconds() {
@@ -179,6 +179,6 @@ function resetGame() {
     isGameOver = false;
     score = 0;
     document.getElementById("startBtn").disabled = false;
-    document.getElementById('resetGameButton').disabled = true;
+    document.getElementById("resetGameButton").disabled = true;
     window.location.reload();
 }
