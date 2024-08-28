@@ -9,22 +9,33 @@ let noAsteroidsDestroyed = 0;
 let noAsteroidsAvoided = 0;
 let refreshScore;
 
+// Load images
+const airplaneImage = new Image();
+airplaneImage.src = 'images/plane.png';
+
+const asteroidImage = new Image();
+asteroidImage.src = 'images/asteroid.png';
+
+airplaneImage.onload = () => {
+    asteroidImage.onload = () => {
+        // Images are loaded, start the game
+        document.getElementById("startBtn").disabled = false;
+    };
+};
+
 //airplane
-const planeWidth = 40;
-const planeHeight = 50;
+const planeWidth = 60;
+const planeHeight = 42;
 const planeSpeed = 20;
 let planeX = canvasWidth / 2 - planeWidth / 2;
 let planeY = canvasHeight - planeHeight - 5;
 
 function drawAirplane() {
-    ctx.fillStyle = "green";
-    ctx.beginPath();
-    ctx.fillRect(planeX, planeY, planeWidth, planeHeight);
-    ctx.closePath();
+    ctx.drawImage(airplaneImage, planeX, planeY, planeWidth, planeHeight);
 }
 
 function clearScreen() {
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "LightSteelBlue";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 }
 
@@ -75,8 +86,8 @@ document.addEventListener("keydown", function(event) {
 
 //projectiles
 let projectiles = [];
-const projectileWidth = 5;
-const projectileHeight = 20;
+const projectileWidth = 4;
+const projectileHeight = 15;
 const projectileSpeed = 3;
 
 function spawnNewProjectiles() {
@@ -90,7 +101,7 @@ function updateProjectiles() {
         if (projectiles[i][1] < 0) {
             projectiles.splice(i, 1);
         }
-        ctx.fillStyle = "orange";
+        ctx.fillStyle = "red";
         if (projectiles.length >= 1) {
             ctx.fillRect(projectiles[i][0], projectiles[i][1], projectileWidth, projectileHeight);
         }
@@ -101,6 +112,7 @@ function updateProjectiles() {
 let asteroids = [];
 const asteroidWidth = 40;
 const asteroidHeight = 40;
+const asteroidRadius = asteroidWidth / 2;
 
 function spawnNewAsteroids() {
     for (let i = 0; i < 3; ++i) {
@@ -119,10 +131,7 @@ function updateAsteroids() {
             ++noAsteroidsAvoided;
             asteroids.splice(i, 1);
         }
-        ctx.beginPath();
-        ctx.strokeStyle = "white";
-        ctx.strokeRect(asteroids[i][0], asteroids[i][1], asteroidWidth, asteroidHeight);
-        ctx.closePath();
+        ctx.drawImage(asteroidImage, asteroids[i][0], asteroids[i][1], asteroidWidth, asteroidHeight);
     }
 }
 
@@ -134,13 +143,25 @@ function delayAsteroidSpawning() {
     }
 }
 
+function isColliding(circleX, circleY, circleRadius, rectX, rectY, rectWidth, rectHeight) {
+    let closestX = Math.max(rectX, Math.min(circleX, rectX + rectWidth));
+    let closestY = Math.max(rectY, Math.min(circleY, rectY + rectHeight));
+
+    let distanceX = circleX - closestX;
+    let distanceY = circleY - closestY;
+
+    let distanceSquared = (distanceX * distanceX) + (distanceY * distanceY);
+    return distanceSquared < (circleRadius * circleRadius);
+}
+
 function checkForProjectileCollisions() {
     for (let i = 0; i < projectiles.length; ++i) {
         for (let j = 0; j < asteroids.length; ++j) {
-            if (projectiles[i][0] < asteroids[j][0] + asteroidWidth &&
-                projectiles[i][0] + projectileWidth > asteroids[j][0] &&
-                projectiles[i][1] < asteroids[j][1] + asteroidHeight &&
-                projectiles[i][1] + projectileHeight > asteroids[j][1]) {
+            let cx = asteroids[j][0] + asteroidRadius;
+            let cy = asteroids[j][1] + asteroidRadius;
+
+            if (isColliding(cx, cy, asteroidRadius, projectiles[i][0], projectiles[i][1], 
+                projectileWidth, projectileHeight)) {
                 projectiles.splice(i, 1);
                 asteroids.splice(j, 1);
                 ++noAsteroidsDestroyed;
@@ -152,10 +173,10 @@ function checkForProjectileCollisions() {
 
 function checkForGameOver() {
     for (let i = 0; i < asteroids.length; ++i) {
-        if (planeX < asteroids[i][0] + asteroidWidth &&
-            planeX + planeWidth > asteroids[i][0] &&
-            planeY < asteroids[i][1] + asteroidHeight &&
-            planeY + planeHeight > asteroids[i][1]) {
+        let cx = asteroids[i][0] + asteroidRadius;
+        let cy = asteroids[i][1] + asteroidRadius;
+
+        if (isColliding(cx, cy, asteroidRadius, planeX, planeY, planeWidth, planeHeight)) {
             handleGameOver();
         }
     }
