@@ -1,5 +1,5 @@
   body {
-    font-family: "Monospace", "Courier New";
+    font-family: "Lucida Console", Courier, monospace;
     text-align: center;
     justify-content: center;
   }
@@ -7,32 +7,40 @@
   #title {
     font-weight: bold;
     margin-top: 5px;
+    text-shadow: 0 0 10px #3cf0fd, 
+      0 0 20px #38e1ff, 
+      0 0 30px rgb(62, 149, 255);
   }
   
   #gameArea {
-    border: 3px solid grey;
+    border: 3px solid black;
   }
   
   #info {
-    border: 2px solid grey;
+    border: 1px solid grey;
     width: 600px;
     margin: auto;
     font-weight: bold;
-    background-color: LightGrey;
+    box-shadow: 0 0 35px 5px rgba(0, 0, 0, 0.25) inset, 0 2px 1px 1px rgba(
+        255,
+        255,
+        255,
+        0.9
+      ) inset, 0 -2px 1px rgba(0, 0, 0, 0.25) inset;
   }
 
   #scoreBoard {
-    background-color: LightGrey;
-    border: 3px solid grey;
+    box-shadow: 0 20px 10px -20px rgba(0,0,0,0.45) inset;
     width: 604px;
     margin: auto;
     font-weight: bold;
     font-size: large;
-    font-family: "Monospace", "Courier New";
+    font-family: "Lucida Console", Courier, monospace;
     color: black;
   }
   
   #startBtn {
+    box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.5);
     width: 100px;
     height: 50px;
     border-radius: 15px;
@@ -40,6 +48,7 @@
   }
   
   #resetGameButton {
+    box-shadow: 2px 2px 2px 0px rgba(0,0,0,0.5);
     width: 100px;
     height: 50px;
     border-radius: 15px;
