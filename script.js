@@ -16,12 +16,8 @@ airplaneImage.src = 'images/plane.png';
 const asteroidImage = new Image();
 asteroidImage.src = 'images/asteroid.png';
 
-airplaneImage.onload = () => {
-    asteroidImage.onload = () => {
-        // Images are loaded, start the game
-        document.getElementById("startBtn").disabled = false;
-    };
-};
+const explosionImage = new Image();
+explosionImage.src = 'images/blast.png';
 
 //airplane
 const planeWidth = 60;
@@ -35,7 +31,7 @@ function drawAirplane() {
 }
 
 function clearScreen() {
-    ctx.fillStyle = "LightSteelBlue";
+    ctx.fillStyle = "MidnightBlue";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 }
 
@@ -186,6 +182,11 @@ function handleGameOver() {
     isGameOver = true;
     clearInterval(refreshScore);
     cancelAnimationFrame(updateGame);
+    const explosionWidth = 80;
+    const explosionHeight = 80;
+    const explosionX = planeX + planeWidth / 2 - explosionWidth / 2;
+    const explosionY = planeY - explosionHeight / 2;
+    ctx.drawImage(explosionImage, explosionX, explosionY, explosionWidth, explosionHeight);
     ctx.fillStyle = "red";
     ctx.font = "bold italic 50px Courier New";
     ctx.fillText("GAME OVER", canvasWidth / 4, canvasHeight / 2);
