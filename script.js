@@ -2,6 +2,8 @@ const canvas = document.getElementById("gameArea");
 const ctx = canvas.getContext("2d");
 const canvasWidth = canvas.width;
 const canvasHeight = canvas.height;
+const asteroidStartYLocation = -30;
+const THOUSAND = 1000;
 let isGameOver = false;
 let delay = 100;
 let score = 0;
@@ -19,7 +21,7 @@ asteroidImage.src = 'images/asteroid.png';
 const explosionImage = new Image();
 explosionImage.src = 'images/blast.png';
 
-//airplane
+// Airplane
 const planeWidth = 60;
 const planeHeight = 42;
 const planeSpeed = 20;
@@ -37,14 +39,62 @@ function clearScreen() {
 
 clearScreen();
 
-//start game
+// Start game
 function startGame() {
     document.getElementById("startBtn").disabled = true;
-    refreshScore = setInterval(countSeconds, 1000);
+    refreshScore = setInterval(countSeconds, THOUSAND);
     updateGame();
 }
 
-//Game loop
+// Projectile class
+class Projectile {
+    constructor(x, y, width, height, speed) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.speed = speed;
+    }
+
+    update() {
+        this.y -= this.speed;
+    }
+
+    draw(ctx) {
+        ctx.fillStyle = "red";
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+
+    isOffScreen() {
+        return this.y < 0;
+    }
+}
+
+// Asteroid class
+class Asteroid {
+    constructor(x, y, width, height, speed) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.speed = speed;
+        this.radius = width / 2;
+    }
+
+    update() {
+        this.y += this.speed;
+    }
+
+    draw(ctx) {
+        ctx.drawImage(asteroidImage, this.x, this.y, this.width, this.height);
+    }
+
+    isOffScreen() {
+        return this.y >= canvasHeight;
+    }
+}
+
+// Game loop
 function updateGame() {
     if (!isGameOver) {
         requestAnimationFrame(updateGame);
@@ -65,7 +115,7 @@ function updateScores() {
     document.getElementById("noAvoidedAsteroids").innerText = noAsteroidsAvoided;
 }
 
-//move the airplane and shoot
+// Move the airplane and shoot
 document.addEventListener("keydown", function(event) {
     if (!isGameOver) {
         if (event.key === "ArrowLeft" && planeX > 0) {
@@ -80,54 +130,64 @@ document.addEventListener("keydown", function(event) {
     }
 });
 
-//projectiles
-let projectiles = [];
+// Projectiles
+const projectiles = [];
 const projectileWidth = 4;
 const projectileHeight = 15;
 const projectileSpeed = 3;
 
 function spawnNewProjectiles() {
-    let projectileCoords = [planeX + (planeWidth / 2 - projectileWidth / 2), planeY];
-    projectiles.push(projectileCoords);
+    let projectile = new Projectile(
+        planeX + (planeWidth / 2 - projectileWidth / 2),
+        planeY,
+        projectileWidth,
+        projectileHeight,
+        projectileSpeed
+    );
+    projectiles.push(projectile);
 }
 
 function updateProjectiles() {
     for (let i = 0; i < projectiles.length; ++i) {
-        projectiles[i][1] -= projectileSpeed;
-        if (projectiles[i][1] < 0) {
+        projectiles[i].update();
+        if (projectiles[i].isOffScreen()) {
             projectiles.splice(i, 1);
-        }
-        ctx.fillStyle = "red";
-        if (projectiles.length >= 1) {
-            ctx.fillRect(projectiles[i][0], projectiles[i][1], projectileWidth, projectileHeight);
+            --i;
+        } else {
+            projectiles[i].draw(ctx);
         }
     }
 }
 
-//asteroids
-let asteroids = [];
+// Asteroids
+const asteroids = [];
 const asteroidWidth = 40;
 const asteroidHeight = 40;
 const asteroidRadius = asteroidWidth / 2;
 
 function spawnNewAsteroids() {
     for (let i = 0; i < 3; ++i) {
-        let asteroidX = Math.floor(Math.random() * (canvasWidth - asteroidWidth));
-        let asteroidY = -30;
-        let asteroidSpeed = Math.floor(Math.random() * 2) + 1;
-        let asteroidCoords = [asteroidX, asteroidY, asteroidSpeed];
-        asteroids.push(asteroidCoords);
+        let asteroid = new Asteroid(
+            Math.floor(Math.random() * (canvasWidth - asteroidWidth)),
+            asteroidStartYLocation,
+            asteroidWidth,
+            asteroidHeight,
+            Math.floor(Math.random() * 2) + 1
+        );
+        asteroids.push(asteroid);
     }
 }
 
 function updateAsteroids() {
     for (let i = 0; i < asteroids.length; ++i) {
-        asteroids[i][1] += asteroids[i][2];
-        if (asteroids[i][1] >= canvasHeight) {
+        asteroids[i].update();
+        if (asteroids[i].isOffScreen()) {
             ++noAsteroidsAvoided;
             asteroids.splice(i, 1);
+            --i;
+        } else {
+            asteroids[i].draw(ctx);
         }
-        ctx.drawImage(asteroidImage, asteroids[i][0], asteroids[i][1], asteroidWidth, asteroidHeight);
     }
 }
 
@@ -139,7 +199,8 @@ function delayAsteroidSpawning() {
     }
 }
 
-function isColliding(circleX, circleY, circleRadius, rectX, rectY, rectWidth, rectHeight) {
+function isColliding(circleX, circleY, circleRadius, rectX, rectY, rectWidth, 
+    rectHeight) {
     let closestX = Math.max(rectX, Math.min(circleX, rectX + rectWidth));
     let closestY = Math.max(rectY, Math.min(circleY, rectY + rectHeight));
 
@@ -153,14 +214,15 @@ function isColliding(circleX, circleY, circleRadius, rectX, rectY, rectWidth, re
 function checkForProjectileCollisions() {
     for (let i = 0; i < projectiles.length; ++i) {
         for (let j = 0; j < asteroids.length; ++j) {
-            let cx = asteroids[j][0] + asteroidRadius;
-            let cy = asteroids[j][1] + asteroidRadius;
+            let cx = asteroids[j].x + asteroids[j].radius;
+            let cy = asteroids[j].y + asteroids[j].radius;
 
-            if (isColliding(cx, cy, asteroidRadius, projectiles[i][0], projectiles[i][1], 
-                projectileWidth, projectileHeight)) {
+            if (isColliding(cx, cy, asteroids[j].radius, projectiles[i].x, 
+                projectiles[i].y, projectiles[i].width, projectiles[i].height)) {
                 projectiles.splice(i, 1);
                 asteroids.splice(j, 1);
                 ++noAsteroidsDestroyed;
+                --i;
                 break;
             }
         }
@@ -169,10 +231,11 @@ function checkForProjectileCollisions() {
 
 function checkForGameOver() {
     for (let i = 0; i < asteroids.length; ++i) {
-        let cx = asteroids[i][0] + asteroidRadius;
-        let cy = asteroids[i][1] + asteroidRadius;
+        let cx = asteroids[i].x + asteroids[i].radius;
+        let cy = asteroids[i].y + asteroids[i].radius;
 
-        if (isColliding(cx, cy, asteroidRadius, planeX, planeY, planeWidth, planeHeight)) {
+        if (isColliding(cx, cy, asteroids[i].radius, planeX, planeY, 
+            planeWidth, planeHeight)) {
             handleGameOver();
         }
     }
@@ -186,7 +249,9 @@ function handleGameOver() {
     const explosionHeight = 80;
     const explosionX = planeX + planeWidth / 2 - explosionWidth / 2;
     const explosionY = planeY - explosionHeight / 2;
-    ctx.drawImage(explosionImage, explosionX, explosionY, explosionWidth, explosionHeight);
+    ctx.drawImage(
+        explosionImage, explosionX, explosionY, explosionWidth, explosionHeight
+    );
     ctx.fillStyle = "red";
     ctx.font = "bold italic 50px Courier New";
     ctx.fillText("GAME OVER", canvasWidth / 4, canvasHeight / 2);
